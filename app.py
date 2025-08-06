@@ -3,7 +3,7 @@ import google.generativeai as genai
 from PIL import Image
 import os
 import re
-
+import os
 import requests
 
 # --- Configuration ---
