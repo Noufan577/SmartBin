@@ -2,12 +2,11 @@ import streamlit as st
 import google.generativeai as genai
 from PIL import Image
 import os
-import re
 import requests
 
 # --- Configuration ---
 # It is highly recommended to use Streamlit Secrets to store your API key in production
-os.environ['GOOGLE_API_KEY'] = "AIzaSyBO7rDZyuygcRD09v5Q9Wj2ejDM_8lKL0I"
+os.environ['GOOGLE_API_KEY'] = ""
 genai.configure(api_key=os.environ['GOOGLE_API_KEY'])
 
 
