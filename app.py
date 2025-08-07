@@ -5,8 +5,14 @@ import os
 import requests
 import re
 
-os.environ['GOOGLE_API_KEY'] = "" # Give your API key here
+import requests
+
+# --- Configuration ---
+# It is highly recommended to use Streamlit Secrets to store your API key in production
+os.environ['GOOGLE_API_KEY'] = "AIzaSyAyyPTxPRPEDJ6k8GtARnNQd-UeDM2-psw"
 genai.configure(api_key=os.environ['GOOGLE_API_KEY'])
+
+# --- All Agent and Helper Functions ---
 
 def get_gemini_model():
     return genai.GenerativeModel('gemini-1.5-flash-latest')
@@ -81,21 +87,6 @@ def parse_separator_report(report_text):
     major_category = max(active_components, key=active_components.get)
     return active_components, major_category, total_items
 
-
-def recycling_agent_process(model, image, component_report):
-    """
-    Detects recyclable waste, provides recycling steps, and describes new products.
-    """
-    st.info("Recycling Agent is identifying recyclable items and providing a protocol...")
-    prompt = f"""You are a Recycling Agent. Based on the following list of items:
-    {component_report}
-    Identify all the recyclable items, provide a count for each type (e.g., '3 plastic bottles'), and then provide a step-by-step recycling protocol for the most dominant recyclable material. Finally, describe what the recycled material could become."""
-    
-    with st.spinner("Generating recycling report..."):
-        response = model.generate_content([prompt, image])
-    return response.text
-
-
 def count_items_from_report(report_text):
     """
     Counts the number of items listed in a report.
@@ -110,7 +101,7 @@ def calculate_honor_score(item_count, waste_type):
     points_mapping = {'e-waste': 25, 'non-biodegradable': 15, 'biodegradable': 10}
     return item_count * points_mapping.get(waste_type, 5)
 
-
+# --- (UPDATED) Function to display full treatment protocols ---
 def display_treatment_protocol(waste_type):
     """
     Displays the appropriate treatment protocol for a given waste type.
@@ -118,47 +109,58 @@ def display_treatment_protocol(waste_type):
     st.subheader("B. Automated Treatment Protocol")
     if waste_type == 'biodegradable':
         st.markdown("""
-            **1. Mechanical Shredding:** Waste is first shredded into smaller, uniform pieces.
-            **2. Anaerobic Digestion:** Shredded material is moved into an oxygen-free digester to produce biogas and digestate.
-            **3. Curing and Maturation:** The digestate is stabilized to create high-quality compost.
+            **1. Mechanical Shredding:** Waste is first shredded into smaller, uniform pieces. This increases the surface area, allowing microorganisms to break down the material much faster.
+            
+            **2. Anaerobic Digestion:** The shredded material is moved into an oxygen-free digester tank. Here, microorganisms consume the organic matter, producing valuable biogas for energy and a nutrient-rich solid called digestate.
+            
+            **3. Curing and Maturation:** The digestate is moved to curing piles where it matures over several weeks. This final aerobic phase stabilizes the material, eliminating pathogens and resulting in high-quality, safe-to-use compost.
         """)
     elif waste_type == 'non-biodegradable':
         st.markdown("""
-            **1. AI-Powered Optical Sorting:** AI identifies and sorts materials on conveyors.
-            **2. Cleaning and Granulation:** Sorted materials are washed and shredded into flakes.
-            **3. Extrusion and Pelletizing:** Flakes are melted and turned into pellets for manufacturing.
+            **1. AI-Powered Optical Sorting:** Waste travels on high-speed conveyors under advanced cameras. AI identifies the unique spectral signature of different materials, and precision air jets instantly sort them into pure streams.
+            
+            **2. Cleaning and Granulation:** Each sorted material stream is thoroughly washed to remove contaminants. It is then fed into a granulator that shreds the clean material into small, uniform flakes.
+            
+            **3. Extrusion and Pelletizing:** The dried flakes are melted and forced through an extruder, which forms long strands of molten material. These strands are then cooled and chopped into small pellets, the standard raw material format for manufacturing.
         """)
     elif waste_type == 'e-waste':
         st.warning("**CRITICAL:** E-waste contains toxic heavy metals like lead and mercury.")
         st.markdown("""
-            **1. Robotic Dismantling:** Automated arms remove high-risk components like batteries.
-            **2. Secure Shredding:** The remaining components are shredded in an enclosed environment.
-            **3. Material Separation:** Magnets and eddy currents separate metals and plastics.
-            **4. Precious Metal Recovery:** A specialized process extracts valuable metals for reuse.
+            **1. Robotic Dismantling:** Automated arms with computer vision precisely remove high-risk components like batteries and circuit boards to prevent contamination.
+            
+            **2. Secure Shredding:** The remaining components are shredded in an enclosed environment to capture and filter any hazardous dust released during the process.
+            
+            **3. Material Separation:** The shredded fragments pass through powerful magnets and eddy currents, which effectively separate ferrous metals, non-ferrous metals, and plastics into distinct streams.
+            
+            **4. Precious Metal Recovery:** The separated circuit boards undergo a specialized hydrometallurgical process to safely extract and refine valuable metals like gold, silver, and platinum for reuse.
         """)
 
-
+# --- (UPDATED) Simplified function to post data to Relay App ---
 def send_to_relay_app(user_email, waste_type, honor_score):
-    """
-    Sends data to a Relay.app webhook to trigger an external process.
-    """
-    relay_url = "" # Give your Relay.app webhook URL here
+    relay_url = "https://your-relay-app-url.com/api/process_waste"
+    
+    email_subject = f"Your {waste_type.replace('_', ' ').title()} Waste Has Been Successfully Treated!"
+    email_body = f"Dear User,\n\nThis is to confirm that the waste you submitted has been fully processed. For your contribution, you have been awarded {honor_score} Honor Points.\n\nThank you."
+    
     payload = {
         "email_to": user_email,
         "honor_score": honor_score,
         "waste_type": waste_type
     }
+    
     try:
         with st.spinner("Sending confirmation..."):
             response = requests.post(relay_url, json=payload, timeout=10)
+        
         if response.status_code in [200, 201]:
             st.success("✅ Process confirmation sent successfully.")
         else:
             st.error(f"❌ Confirmation could not be sent (Status: {response.status_code}).")
+            
     except requests.exceptions.RequestException:
         st.error("❌ Connection Error: Could not connect to the confirmation service.")
 
-
+# --- Main Treatment Process Function ---
 def run_treatment_process(model, image, waste_type, user_email):
     """
     Main function to run the full treatment process.
@@ -167,22 +169,17 @@ def run_treatment_process(model, image, waste_type, user_email):
     component_report = component_identification_agent(model, image, waste_type)
     st.markdown(component_report)
     
-    st.subheader("B. Automated Treatment Protocol")
-    display_treatment_protocol(waste_type)
-    
-    st.subheader("C. Recycling Agent Report (Final Step)")
-    recycling_report = recycling_agent_process(model, image, component_report)
-    st.markdown(recycling_report)
-    
     item_count = count_items_from_report(component_report)
     honor_score = calculate_honor_score(item_count, waste_type)
     
+    display_treatment_protocol(waste_type)
+
     st.success(f"**PROCESS COMPLETE:** {waste_type.replace('_', ' ').title()} waste fully treated.")
     st.markdown("---")
-    
+
     send_to_relay_app(user_email, waste_type, honor_score)
 
-
+# --- Streamlit App Interface ---
 st.set_page_config(page_title="Multi-Agent Waste AI", page_icon="♻️")
 st.title("♻️ Automated Multi-Agent Waste Processing System")
 st.write("Upload an image of waste to simulate the automated treatment workflow.")
@@ -197,6 +194,7 @@ if uploaded_file is not None:
     if st.button("Initiate Automated Treatment"):
         if user_email:
             model = get_gemini_model()
+            
             with st.spinner("Classifier Agent is analyzing the image..."):
                 classifier_response = classifier_agent_process(model, image)
                 category = parse_classification(classifier_response)
@@ -226,17 +224,15 @@ if uploaded_file is not None:
                     for comp_cat, count in components.items():
                         st.write(f"🔹 **{count} {comp_cat.replace('_', ' ')}** item(s) logged for the `{comp_cat.upper()}` treatment workflow.")
                     
+                    honor_score = calculate_honor_score(total_items, major_category)
+                    st.markdown("---")
                     st.subheader(f"C. Primary Treatment Protocol (based on {major_category.replace('_', ' ').title()})")
+                    
                     display_treatment_protocol(major_category)
                     
-                    st.subheader("D. Recycling Agent Report (Final Step)")
-                    recycling_report = recycling_agent_process(model, image, separator_report)
-                    st.markdown(recycling_report)
-                        
-                    honor_score = calculate_honor_score(total_items, major_category)
-                    st.success(f"**PROCESS COMPLETE:** Primary treatment for {major_category.replace('_', ' ').title()} finished.")
+                    st.success(f"**PROCESS COMPLETE:** Primary treatment for {major_category.replace('_',' ').title()} finished.")
                     st.markdown("---")
-
-                    send_to_relay_app(user_email, f"Mixed (Major: {major_category.replace('_', ' ').title()})", honor_score)
+                    
+                    send_to_relay_app(user_email, f"Mixed (Major: {major_category.replace('_',' ').title()})", honor_score)
         else:
             st.error("❗ Please enter your email address to proceed.")
