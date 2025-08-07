@@ -1,5 +1,4 @@
-
-
+![WasteWise App Demo](
 ## About The Project
 Manual waste sorting is inefficient, costly, and prone to error. This project, WasteWise, addresses these challenges by leveraging the power of Google's Gemini AI to create an automated, end-to-end workflow.
 
