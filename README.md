@@ -1,1 +1,1 @@
-# SmartBin
+# Waste wise
