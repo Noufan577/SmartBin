@@ -1,7 +1,4 @@
- WasteWise: AI-Powered Agentic Waste Management
-A sophisticated, multi-agent system that classifies waste from images, identifies components, and engages users with a gamified scoring system. Developed for the IBM AI Summer Certification Program.
 
-(Pro Tip: Record a short GIF of your app working and upload it here. It makes your project look very professional!)
 
 ## About The Project
 Manual waste sorting is inefficient, costly, and prone to error. This project, WasteWise, addresses these challenges by leveraging the power of Google's Gemini AI to create an automated, end-to-end workflow.
