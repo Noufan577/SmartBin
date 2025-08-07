@@ -1,10 +1,10 @@
-# Waste wise
- SmartBin: AI-Powered Agentic Waste Management
+ WasteWise: AI-Powered Agentic Waste Management
 A sophisticated, multi-agent system that classifies waste from images, identifies components, and engages users with a gamified scoring system. Developed for the IBM AI Summer Certification Program.
 
+(Pro Tip: Record a short GIF of your app working and upload it here. It makes your project look very professional!)
 
 ## About The Project
-Manual waste sorting is inefficient, costly, and prone to error. This project, SmartBin, addresses these challenges by leveraging the power of Google's Gemini AI to create an automated, end-to-end workflow.
+Manual waste sorting is inefficient, costly, and prone to error. This project, WasteWise, addresses these challenges by leveraging the power of Google's Gemini AI to create an automated, end-to-end workflow.
 
 Our system doesn't just classify waste; it uses a team of specialized AI agents to analyze the components, route them to simulated treatment protocols, and reward users for proper segregation through a unique Honor Score, creating a complete and engaging feedback loop.
 
@@ -15,7 +15,7 @@ Our system doesn't just classify waste; it uses a team of specialized AI agents 
 
  Automated Treatment Protocols: Simulates realistic, industrial-scale treatment workflows for different types of waste, providing detailed process descriptions.
 
- Gamified "Honor Score": Engages users by awarding points for responsible waste disposal, with scores stored and tracked in a MongoDB database.
+Gamified "Honor Score": Engages users by awarding points for responsible waste disposal, with scores stored and tracked in a MongoDB database.
 
  Automated Email Notifications: Uses Relay.app to automatically send users a confirmation email with their updated Honor Score, completing the user feedback loop.
 
@@ -43,8 +43,8 @@ Clone the repo
 
 Bash
 
-git clone https://github.com/your_username/SmartBin.git
-cd SmartBin
+git clone https://github.com/your_username/WasteWise.git
+cd WasteWise
 Create and activate a virtual environment (recommended)
 
 Bash
@@ -78,6 +78,7 @@ MONGO_URI="YOUR_MONGODB_CONNECTION_STRING"
 Once everything is installed, run the Streamlit app from your terminal:
 
 Bash
+
 streamlit run your_app_file.py
 ## Usage
 Open the Streamlit application in your browser.
@@ -87,9 +88,12 @@ Enter your email address to receive notifications.
 Upload an image of waste (.jpg, .jpeg, or .png).
 
 Click the "Initiate Automated Treatment" button.
+
 Watch as the AI agents classify the waste, identify components, and detail the treatment process.
+
 Check your email for your Honor Score confirmation!
 
 ## Acknowledgments
 This project was developed as part of the IBM AI Summer Certification Program.
+
 Thanks to all the frameworks and libraries that made this project possible.
