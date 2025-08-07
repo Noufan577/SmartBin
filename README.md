@@ -34,6 +34,8 @@ To get a local copy up and running, follow these simple steps.
 
 ### Prerequisites
 Make sure you have Python 3.8+ and pip installed.
+Also get gemini api key from the https://aistudio.google.com/prompts/new_chat and paste it in the are of the code provided.
+Also get the relay app url from https://www.relay.app/ and paste it in the area provided in the code.
 
 ### Installation
 Clone the repo
